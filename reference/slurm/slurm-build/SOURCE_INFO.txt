@@ -1,0 +1,3 @@
+SLURM_VERSION=25.05.6
+SLURM_TARBALL=https://download.schedmd.com/slurm/slurm-25.05.6.tar.bz2
+SHA1=4b7af57059669522bc506ea34cd6196395008ab1

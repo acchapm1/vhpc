@@ -1,0 +1,82 @@
+version: "2.4"
+
+services:
+
+  head:
+    build: ./head
+    container_name: hpc-head
+    hostname: head.node
+    privileged: true
+    networks:
+      hpcnet:
+        ipv4_address: 172.28.0.2
+    ports:
+      - "2222:22"
+    volumes:
+      - head-etc:/etc
+      - head-var:/var
+    tty: true
+
+  compute1:
+    build: ./compute
+    container_name: hpc-compute1
+    hostname: compute1.node
+    mem_limit: 6g
+    cpus: 2.0
+    networks:
+      hpcnet:
+        ipv4_address: 172.28.0.3
+    volumes:
+      - compute1-etc:/etc
+      - compute1-var:/var
+    depends_on:
+      - head
+      - storage
+    tty: true
+
+  compute2:
+    build: ./compute
+    container_name: hpc-compute2
+    hostname: compute2.node
+    mem_limit: 6g
+    cpus: 2.0
+    networks:
+      hpcnet:
+        ipv4_address: 172.28.0.4
+    volumes:
+      - compute2-etc:/etc
+      - compute2-var:/var
+    depends_on:
+      - head
+      - storage
+    tty: true
+
+  storage:
+    build: ./storage
+    container_name: hpc-storage
+    hostname: storage.node
+    privileged: true
+    networks:
+      hpcnet:
+        ipv4_address: 172.28.0.5
+    volumes:
+      - storage-backing:/data
+    environment:
+      STORAGE_SIZE_GB: "10"
+    tty: true
+
+networks:
+  hpcnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  head-etc:
+  head-var:
+  compute1-etc:
+  compute1-var:
+  compute2-etc:
+  compute2-var:
+  storage-backing:

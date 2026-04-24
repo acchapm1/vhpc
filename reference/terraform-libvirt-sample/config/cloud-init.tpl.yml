@@ -1,0 +1,30 @@
+#cloud-config
+ssh_pwauth: true
+chpasswd:
+  list: |
+    root:${root_password}
+  expire: false
+disable_root: false
+
+hostname: ${vm_hostname}
+fqdn: ${vm_hostname}.${domain}
+
+apt:
+  preserve_sources_list: false
+  sources_list: |
+        Types: deb
+        URIs: http://mirror.arvancloud.ir/ubuntu
+        Suites: noble noble-updates noble-backports
+        Components: main universe restricted multiverse
+        Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+packages:
+  - qemu-guest-agent
+
+runcmd:
+  - [ sed, -i, -e, '/^#PermitRootLogin .*\$/a PermitRootLogin yes', /etc/ssh/sshd_config ]
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - systemctl restart sshd
+
+ssh_authorized_keys:
+  - ${ssh_keys}
